@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Orb InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: orb
+      defaultBucket: orb_metrics
+      tlsSkipVerify: true
+    secureJsonData:
+      token: orb-secret-token
+    isDefault: true
+    editable: true

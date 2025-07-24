@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: "default"
+    orgId: 1
+    folder: "Orb Dashboards"
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/dashboards

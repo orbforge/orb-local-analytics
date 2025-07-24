@@ -1,0 +1,56 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    environment:
+      - INFLUXDB_REPORTING_DISABLED=true
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=orbsupersecret
+      - DOCKER_INFLUXDB_INIT_ORG=orb
+      - DOCKER_INFLUXDB_INIT_BUCKET=orb_metrics
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=orb-secret-token
+    restart: unless-stopped
+    networks:
+      - tig
+
+  telegraf:
+    image: telegraf:1.30
+    container_name: telegraf
+    depends_on:
+      - influxdb
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    environment:
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+    restart: unless-stopped
+    networks:
+      - tig
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+    networks:
+      - tig
+
+volumes:
+  influxdb-data:
+  grafana-data:
+
+networks:
+  tig:
+    driver: bridge
