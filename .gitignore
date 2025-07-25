@@ -1,1 +1,3 @@
 .DS_Store
+telegraf.conf
+telegraf.conf.backup

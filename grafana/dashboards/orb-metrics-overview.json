@@ -107,7 +107,7 @@
                         "type": "influxdb",
                         "uid": "P65EB462968463E7E"
                     },
-                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"orb_scores\" and\n    (r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and\n    (r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
                     "refId": "A"
                 }
             ],
@@ -199,7 +199,7 @@
                         "type": "influxdb",
                         "uid": "P65EB462968463E7E"
                     },
-                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"orb_responsiveness\" and\n    (r._field == \"lag_avg_us\" or r._field == \"latency_avg_us\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 15s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"responsiveness\" and\n    (r._field == \"lag_avg_us\" or r._field == \"latency_avg_us\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 15s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
                     "refId": "A"
                 }
             ],
@@ -291,7 +291,7 @@
                         "type": "influxdb",
                         "uid": "P65EB462968463E7E"
                     },
-                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"orb_speed\" and\n    (r._field == \"download_kbps\" or r._field == \"upload_kbps\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"speed_results\" and\n    (r._field == \"download_kbps\" or r._field == \"upload_kbps\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
                     "refId": "A"
                 }
             ],
@@ -383,7 +383,7 @@
                         "type": "influxdb",
                         "uid": "P65EB462968463E7E"
                     },
-                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"orb_web_responsiveness\" and\n    (r._field == \"ttfb_us\" or r._field == \"dns_us\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 15s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"web_responsiveness\" and\n    (r._field == \"ttfb_us\" or r._field == \"dns_us\")\n  )\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: 15s, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
                     "refId": "A"
                 }
             ],
