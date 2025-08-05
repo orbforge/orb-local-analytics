@@ -1,0 +1,536 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P65EB462968463E7E"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "hideFrom": {
+                            "tooltip": false,
+                            "viz": false,
+                            "legend": false
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 50
+                            },
+                            {
+                                "color": "green",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percent",
+                    "unitScale": true
+                }
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "basemap": {
+                    "name": "Basemap",
+                    "type": "default"
+                },
+                "controls": {
+                    "mouseWheelZoom": true,
+                    "showAttribution": true,
+                    "showDebug": false,
+                    "showMeasure": false,
+                    "showScale": false,
+                    "showZoom": true
+                },
+                "layers": [
+                    {
+                        "config": {
+                            "showLegend": true,
+                            "style": {
+                                "color": {
+                                    "field": "Orb Score",
+                                    "fixed": "dark-green"
+                                },
+                                "opacity": 0.7,
+                                "rotation": {
+                                    "fixed": 0,
+                                    "max": 360,
+                                    "min": -360,
+                                    "mode": "mod"
+                                },
+                                "size": {
+                                    "field": "Orb Score",
+                                    "fixed": 5,
+                                    "max": 15,
+                                    "min": 5
+                                },
+                                "symbol": {
+                                    "fixed": "img/icons/marker/circle.svg",
+                                    "mode": "fixed"
+                                },
+                                "symbolAlign": {
+                                    "horizontal": "center",
+                                    "vertical": "center"
+                                },
+                                "text": {
+                                    "field": "City",
+                                    "fixed": "",
+                                    "mode": "field"
+                                },
+                                "textConfig": {
+                                    "fontSize": 12,
+                                    "offsetX": 0,
+                                    "offsetY": -20,
+                                    "textAlign": "center",
+                                    "textBaseline": "middle"
+                                }
+                            }
+                        },
+                        "location": {
+                            "mode": "coords",
+                            "latitude": "Latitude",
+                            "longitude": "Longitude"
+                        },
+                        "name": "Orb Locations",
+                        "type": "markers"
+                    }
+                ],
+                "tooltip": {
+                    "mode": "details"
+                },
+                "view": {
+                    "allLayers": true,
+                    "id": "fit",
+                    "lat": 0,
+                    "lon": 0,
+                    "zoom": 2
+                }
+            },
+            "pluginVersion": "10.3.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P65EB462968463E7E"
+                    },
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"scores\" and r._field == \"orb_score\")\n  |> group(columns: [\"city\", \"country_code\"])\n  |> mean()\n  |> map(fn: (r) => ({\n    \"City\": r.city,\n    \"Country\": r.country_code,\n    \"Orb Score\": r._value,\n    // You would need to add latitude/longitude mapping here\n    // This is just placeholder data - replace with actual coordinates\n    \"Latitude\": if r.city == \"San Francisco\" then 37.7749 else if r.city == \"New York\" then 40.7128 else 0.0,\n    \"Longitude\": if r.city == \"San Francisco\" then -122.4194 else if r.city == \"New York\" then -74.0060 else 0.0\n  }))",
+                    "refId": "A"
+                }
+            ],
+            "title": "Geographic Performance Map",
+            "type": "geomap"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P65EB462968463E7E"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unitScale": true
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Score"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background",
+                                    "mode": "gradient"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 50
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 80
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "µs"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Device Count"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Avg Score"
+                    }
+                ]
+            },
+            "pluginVersion": "10.3.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P65EB462968463E7E"
+                    },
+                    "query": "scores = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"scores\" and r._field == \"orb_score\")\n  |> group(columns: [\"city\", \"country_code\"])\n  |> mean()\n  |> map(fn: (r) => ({city: r.city, country: r.country_code, score: r._value}))\n\nlatency = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\" and r._field == \"latency_avg_us\")\n  |> group(columns: [\"city\"])\n  |> mean()\n  |> map(fn: (r) => ({city: r.city, latency: r._value}))\n\ndevice_count = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"scores\" and r._field == \"orb_score\")\n  |> group(columns: [\"city\", \"orb_name\"])\n  |> count()\n  |> group(columns: [\"city\"])\n  |> count()\n  |> map(fn: (r) => ({city: r.city, count: r._value}))\n\njoin1 = join(tables: {t1: scores, t2: latency}, on: [\"city\"])\njoin2 = join(tables: {t1: join1, t2: device_count}, on: [\"city\"])\n  |> map(fn: (r) => ({\n    \"City\": r.city,\n    \"Country\": r.country,\n    \"Avg Score\": r.score,\n    \"Avg Latency\": r.latency,\n    \"Device Count\": r.count\n  }))",
+                    "refId": "A"
+                }
+            ],
+            "title": "Performance by City",
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P65EB462968463E7E"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "fillOpacity": 80,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineWidth": 1,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "percent",
+                    "unitScale": true
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 12
+            },
+            "id": 3,
+            "options": {
+                "barRadius": 0,
+                "barWidth": 0.9,
+                "colorByField": "ISP",
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "orientation": "horizontal",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                },
+                "xField": "Score",
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P65EB462968463E7E"
+                    },
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"scores\")\n  |> filter(fn: (r) => r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")\n  |> group(columns: [\"isp_name\", \"_field\"])\n  |> mean()\n  |> pivot(rowKey:[\"isp_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    \"ISP\": r.isp_name,\n    \"Score\": r.orb_score,\n    \"field\": \"Overall Score\"\n  }))\n  |> group()",
+                    "refId": "A"
+                }
+            ],
+            "title": "Performance by ISP",
+            "type": "barchart"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P65EB462968463E7E"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": 300000,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "µs",
+                    "unitScale": true
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 12,
+                "y": 12
+            },
+            "id": 4,
+            "options": {
+                "legend": {
+                    "calcs": ["mean", "lastNotNull"],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P65EB462968463E7E"
+                    },
+                    "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\" and r._field == \"latency_avg_us\")\n  |> group(columns: [\"city\", \"_field\"])\n  |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Latency Trends by City",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 39,
+    "tags": ["orb", "geographic", "location"],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": true,
+                    "text": ["All"],
+                    "value": ["$__all"]
+                },
+                "datasource": {
+                    "type": "influxdb",
+                    "uid": "P65EB462968463E7E"
+                },
+                "definition": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group()\n  |> distinct(column: \"city\")\n  |> keep(columns: [\"_value\"])",
+                "hide": 0,
+                "includeAll": true,
+                "label": "City",
+                "multi": true,
+                "name": "city",
+                "options": [],
+                "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group()\n  |> distinct(column: \"city\")\n  |> keep(columns: [\"_value\"])",
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": ["All"],
+                    "value": ["$__all"]
+                },
+                "datasource": {
+                    "type": "influxdb",
+                    "uid": "P65EB462968463E7E"
+                },
+                "definition": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group()\n  |> distinct(column: \"isp_name\")\n  |> keep(columns: [\"_value\"])",
+                "hide": 0,
+                "includeAll": true,
+                "label": "ISP",
+                "multi": true,
+                "name": "isp",
+                "options": [],
+                "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group()\n  |> distinct(column: \"isp_name\")\n  |> keep(columns: [\"_value\"])",
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Geographic Performance Analysis",
+    "uid": "geo-performance-001",
+    "version": 1,
+    "weekStart": ""
+}
