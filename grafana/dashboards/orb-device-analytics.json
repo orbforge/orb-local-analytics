@@ -200,7 +200,7 @@
             ]
           },
           "unit": "none",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
@@ -254,7 +254,7 @@
             ]
           },
           "unit": "none",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
@@ -416,7 +416,7 @@
             ]
           },
           "unit": "none",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
@@ -470,7 +470,7 @@
             ]
           },
           "unit": "none",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
@@ -505,6 +505,235 @@
       ],
       "title": "Bottom 10% (P10)",
       "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "µs",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 0,
+        "y": 12
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"lag_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> mean()",
+          "refId": "A"
+        }
+      ],
+      "title": "Mean Lag (µs)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "µs",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 3,
+        "y": 12
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latency_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> mean()",
+          "refId": "A"
+        }
+      ],
+      "title": "Mean Latency (µs)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": 3600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "µs"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "lag_avg_us"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Lag"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "latency_avg_us"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Latency"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 12
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"lag_avg_us\" or r[\"_field\"] == \"latency_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Responsiveness Over Time",
+      "type": "timeseries"
     },
     {
       "datasource": "Orb InfluxDB",
@@ -578,7 +807,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "15-min average"
+              "options": "30-min average"
             },
             "properties": [
               {
@@ -604,6 +833,36 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "4-hour average"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "24-hour average"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -611,7 +870,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 8
+        "y": 18
       },
       "id": 9,
       "options": {
@@ -634,13 +893,23 @@
         },
         {
           "datasource": "Orb InfluxDB",
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 15)\n  |> set(key: \"_field\", value: \"15-min average\")",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 30)\n  |> set(key: \"_field\", value: \"30-min average\")",
           "refId": "B"
         },
         {
           "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 60)\n  |> set(key: \"_field\", value: \"1-hour average\")",
           "refId": "C"
+        },
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 240)\n  |> set(key: \"_field\", value: \"4-hour average\")",
+          "refId": "D"
+        },
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 1440)\n  |> set(key: \"_field\", value: \"24-hour average\")",
+          "refId": "E"
         }
       ],
       "title": "Rolling Averages",
@@ -727,7 +996,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 26
       },
       "id": 10,
       "options": {
@@ -747,11 +1016,11 @@
       "targets": [
         {
           "datasource": "Orb InfluxDB",
-          "query": "import \"date\"\n\ndata = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> map(fn: (r) => ({r with outage: if r._value < 50 then 1 else 0}))\n  |> difference(nonNegative: false, columns: [\"outage\"])\n  |> filter(fn: (r) => r.outage != 0)\n  |> map(fn: (r) => ({r with event: if r.outage > 0 then \"start\" else \"end\"}))\n  |> group()\n  |> sort(columns: [\"_time\"])\n  \nstarts = data |> filter(fn: (r) => r.event == \"start\") |> findRecord(fn: (key) => true, idx: 0)\nends = data |> filter(fn: (r) => r.event == \"end\") |> findRecord(fn: (key) => true, idx: 0)\n\nif exists starts._time and exists ends._time then\n  union(tables: [\n    from(bucket: \"orb_metrics\") |> range(start: starts._time, stop: ends._time) |> limit(n: 1)\n      |> map(fn: (r) => ({\n        \"Start Time\": starts._time,\n        \"End Time\": ends._time,\n        \"Duration (minutes)\": float(v: uint(v: ends._time) - uint(v: starts._time)) / 60000000000.0\n      }))\n  ])\nelse\n  from(bucket: \"orb_metrics\") |> range(start: -1s) |> limit(n: 0)\n    |> map(fn: (r) => ({\n      \"Start Time\": 0,\n      \"End Time\": 0,\n      \"Duration (minutes)\": 0.0\n    }))",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reliability_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> filter(fn: (r) => r._value < 50)\n  |> map(fn: (r) => ({\n    \"Time\": r._time,\n    \"Reliability Score\": r._value,\n    \"Status\": \"Low Reliability\"\n  }))",
           "refId": "A"
         }
       ],
-      "title": "Outages (Score < 50)",
+      "title": "Low Reliability Events (Score < 50)",
       "type": "table"
     }
   ],
@@ -763,15 +1032,15 @@
       {
         "current": {},
         "datasource": "Orb InfluxDB",
-        "definition": "from(bucket: \"orb_metrics\") |> range(start: -30d) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
+        "definition": "from(bucket: \"orb_metrics\") |> range(start: v.timeRangeStart) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
         "hide": 0,
         "includeAll": false,
         "label": "Orb Device",
         "multi": false,
         "name": "orb_device",
         "options": [],
-        "query": "from(bucket: \"orb_metrics\") |> range(start: -30d) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
-        "refresh": 1,
+        "query": "from(bucket: \"orb_metrics\") |> range(start: v.timeRangeStart) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
