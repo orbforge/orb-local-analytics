@@ -827,24 +827,20 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": true,
-          "text": ["All"],
-          "value": ["$__all"]
-        },
+        "current": {},
         "datasource": {
           "type": "influxdb",
           "uid": "orb-influxdb"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"orb_metrics\",\n  tag: \"orb_name\",\n  predicate: (r) => r._measurement == \"scores\",\n  start: -7d\n)",
+        "definition": "from(bucket: \"orb_metrics\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"scores\")\n  |> group()\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"orb_name\"])",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Orb Device",
         "multi": false,
         "name": "orb_device",
         "options": [],
-        "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: \"orb_metrics\",\n  tag: \"orb_name\",\n  predicate: (r) => r._measurement == \"scores\",\n  start: -7d\n)",
-        "refresh": 2,
+        "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"scores\")\n  |> group()\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"orb_name\"])",
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
