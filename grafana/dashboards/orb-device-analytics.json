@@ -523,8 +523,8 @@
               }
             ]
           },
-          "unit": "µs",
-          "decimals": 0
+          "unit": "none",
+          "decimals": 1
         },
         "overrides": []
       },
@@ -542,7 +542,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -553,11 +553,11 @@
       "targets": [
         {
           "datasource": "Orb InfluxDB",
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"lag_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> mean()",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> stddev()",
           "refId": "A"
         }
       ],
-      "title": "Mean Lag (µs)",
+      "title": "Std Deviation",
       "type": "stat"
     },
     {
@@ -577,7 +577,7 @@
               }
             ]
           },
-          "unit": "µs",
+          "unit": "none",
           "decimals": 0
         },
         "overrides": []
@@ -596,7 +596,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -607,11 +607,11 @@
       "targets": [
         {
           "datasource": "Orb InfluxDB",
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latency_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> mean()",
+          "query": "data = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n\nmaxVal = data |> max() |> findRecord(fn: (key) => true, idx: 0)\nminVal = data |> min() |> findRecord(fn: (key) => true, idx: 0)\n\ndata\n  |> map(fn: (r) => ({_time: now(), _value: maxVal._value - minVal._value, _field: \"range\"}))\n  |> limit(n: 1)",
           "refId": "A"
         }
       ],
-      "title": "Mean Latency (µs)",
+      "title": "Range (Max-Min)",
       "type": "stat"
     },
     {
@@ -619,39 +619,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": 3600000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -663,38 +631,150 @@
               }
             ]
           },
-          "unit": "µs"
+          "unit": "short",
+          "decimals": 0
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 18,
-        "x": 6,
-        "y": 12
+        "h": 2,
+        "w": 3,
+        "x": 0,
+        "y": 14
       },
-      "id": 13,
+      "id": 19,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "textMode": "auto"
       },
+      "pluginVersion": "10.3.1",
       "targets": [
         {
           "datasource": "Orb InfluxDB",
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"responsiveness\")\n  |> filter(fn: (r) => r[\"_field\"] == \"lag_avg_us\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> count()",
           "refId": "A"
         }
       ],
-      "title": "Lag Over Time",
-      "type": "timeseries"
+      "title": "Sample Count",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 3,
+        "y": 14
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "data = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n\nmeanVal = data |> mean() |> findRecord(fn: (key) => true, idx: 0)\nstdVal = data |> stddev() |> findRecord(fn: (key) => true, idx: 0)\n\ndata\n  |> map(fn: (r) => ({_time: now(), _value: (stdVal._value / meanVal._value) * 100.0, _field: \"cv\"}))\n  |> limit(n: 1)",
+          "refId": "A"
+        }
+      ],
+      "title": "Coeff of Variation",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 6,
+        "y": 12
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "data = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n\np75 = data |> quantile(q: 0.75) |> findRecord(fn: (key) => true, idx: 0)\np25 = data |> quantile(q: 0.25) |> findRecord(fn: (key) => true, idx: 0)\n\ndata\n  |> map(fn: (r) => ({_time: now(), _value: p75._value - p25._value, _field: \"iqr\"}))\n  |> limit(n: 1)",
+          "refId": "A"
+        }
+      ],
+      "title": "IQR (P75-P25)",
+      "type": "stat"
     },
     {
       "datasource": "Orb InfluxDB",
@@ -722,7 +802,7 @@
         "h": 2,
         "w": 3,
         "x": 0,
-        "y": 14
+        "y": 16
       },
       "id": 14,
       "options": {
@@ -776,7 +856,7 @@
         "h": 2,
         "w": 3,
         "x": 3,
-        "y": 14
+        "y": 16
       },
       "id": 15,
       "options": {
@@ -830,7 +910,7 @@
         "h": 2,
         "w": 3,
         "x": 0,
-        "y": 16
+        "y": 18
       },
       "id": 16,
       "options": {
@@ -884,7 +964,7 @@
         "h": 2,
         "w": 3,
         "x": 3,
-        "y": 16
+        "y": 18
       },
       "id": 17,
       "options": {
@@ -938,7 +1018,7 @@
         "h": 2,
         "w": 3,
         "x": 0,
-        "y": 18
+        "y": 20
       },
       "id": 18,
       "options": {
@@ -1047,7 +1127,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 22
       },
       "id": 10,
       "options": {
