@@ -1,14 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_ORB_INFLUXDB",
-      "label": "Orb InfluxDB",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -33,10 +23,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -103,10 +90,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> last()",
           "refId": "A"
         }
@@ -115,10 +99,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -193,10 +174,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
           "refId": "A"
         }
@@ -205,10 +183,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -253,10 +228,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> mean()",
           "refId": "A"
         }
@@ -265,10 +237,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -313,10 +282,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> median()",
           "refId": "A"
         }
@@ -325,10 +291,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -373,10 +336,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> max()",
           "refId": "A"
         }
@@ -385,10 +345,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -433,10 +390,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> min()",
           "refId": "A"
         }
@@ -445,10 +399,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -493,10 +444,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> quantile(q: 0.90)",
           "refId": "A"
         }
@@ -505,10 +453,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -553,10 +498,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> quantile(q: 0.10)",
           "refId": "A"
         }
@@ -565,10 +507,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -689,26 +628,17 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 5)\n  |> set(key: \"_field\", value: \"5-min average\")",
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 15)\n  |> set(key: \"_field\", value: \"15-min average\")",
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> movingAverage(n: 60)\n  |> set(key: \"_field\", value: \"1-hour average\")",
           "refId": "C"
         }
@@ -717,10 +647,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_ORB_INFLUXDB}"
-      },
+      "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -819,10 +746,7 @@
       "pluginVersion": "10.3.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_ORB_INFLUXDB}"
-          },
+          "datasource": "Orb InfluxDB",
           "query": "import \"date\"\n\ndata = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> map(fn: (r) => ({r with outage: if r._value < 50 then 1 else 0}))\n  |> difference(nonNegative: false, columns: [\"outage\"])\n  |> filter(fn: (r) => r.outage != 0)\n  |> map(fn: (r) => ({r with event: if r.outage > 0 then \"start\" else \"end\"}))\n  |> group()\n  |> sort(columns: [\"_time\"])\n  \nstarts = data |> filter(fn: (r) => r.event == \"start\") |> findRecord(fn: (key) => true, idx: 0)\nends = data |> filter(fn: (r) => r.event == \"end\") |> findRecord(fn: (key) => true, idx: 0)\n\nif exists starts._time and exists ends._time then\n  union(tables: [\n    from(bucket: \"orb_metrics\") |> range(start: starts._time, stop: ends._time) |> limit(n: 1)\n      |> map(fn: (r) => ({\n        \"Start Time\": starts._time,\n        \"End Time\": ends._time,\n        \"Duration (minutes)\": float(v: uint(v: ends._time) - uint(v: starts._time)) / 60000000000.0\n      }))\n  ])\nelse\n  from(bucket: \"orb_metrics\") |> range(start: -1s) |> limit(n: 0)\n    |> map(fn: (r) => ({\n      \"Start Time\": 0,\n      \"End Time\": 0,\n      \"Duration (minutes)\": 0.0\n    }))",
           "refId": "A"
         }
@@ -837,23 +761,16 @@
   "templating": {
     "list": [
       {
-        "allValue": "",
         "current": {},
-        "datasource": {
-          "type": "influxdb",
-          "uid": "${DS_ORB_INFLUXDB}"
-        },
-        "definition": "",
+        "datasource": "Orb InfluxDB",
+        "definition": "from(bucket: \"orb_metrics\") |> range(start: -30d) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
         "hide": 0,
         "includeAll": false,
         "label": "Orb Device",
         "multi": false,
         "name": "orb_device",
         "options": [],
-        "query": {
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"scores\")\n  |> group()\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"orb_name\"])",
-          "refId": "VariableQueryEditor-VariableQuery"
-        },
+        "query": "from(bucket: \"orb_metrics\") |> range(start: -30d) |> filter(fn: (r) => r._measurement == \"scores\") |> group() |> distinct(column: \"orb_name\") |> keep(columns: [\"orb_name\"])",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
