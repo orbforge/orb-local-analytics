@@ -1050,6 +1050,324 @@
       "datasource": "Orb InfluxDB",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 21,
+        "y": 7
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "data = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> group(columns: [\"orb_name\"])\n\ntotal = data |> count() |> findRecord(fn: (key) => true, idx: 0)\nabove80 = data |> filter(fn: (r) => r._value >= 80) |> count() |> findRecord(fn: (key) => true, idx: 0)\n\ndata\n  |> map(fn: (r) => ({_time: now(), _value: float(v: above80._value) / float(v: total._value) * 100.0, _field: \"uptime\"}))\n  |> limit(n: 1)",
+          "refId": "A"
+        }
+      ],
+      "title": "Uptime (≥80)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 21,
+        "y": 9
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> group(columns: [\"orb_name\"])\n  |> derivative(unit: 1m, nonNegative: false)\n  |> filter(fn: (r) => r._value < -10)\n  |> count()",
+          "refId": "A"
+        }
+      ],
+      "title": "Score Drops (>10)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 6,
+        "y": 9
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> group(columns: [\"orb_name\"])\n  |> mode()",
+          "refId": "A"
+        }
+      ],
+      "title": "Mode (Most Common)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "id": 25,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> group(columns: [\"orb_name\"])\n  |> map(fn: (r) => ({r with category: \n    if r._value >= 90 then \"Excellent (90-100)\"\n    else if r._value >= 80 then \"Good (80-89)\"\n    else if r._value >= 70 then \"Fair (70-79)\"\n    else if r._value >= 50 then \"Poor (50-69)\"\n    else \"Critical (<50)\"}))\n  |> group(columns: [\"category\"])\n  |> count()\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Score Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "id": 26,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": "Orb InfluxDB",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"scores\")\n  |> filter(fn: (r) => r[\"_field\"] == \"orb_score\")\n  |> filter(fn: (r) => r[\"orb_name\"] == \"${orb_device}\")\n  |> group(columns: [\"orb_name\"])\n  |> histogram(bins: [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0, 100.0])",
+          "refId": "A"
+        }
+      ],
+      "title": "Score Histogram",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Orb InfluxDB",
+      "fieldConfig": {
+        "defaults": {
           "custom": {
             "align": "auto",
             "cellOptions": {
