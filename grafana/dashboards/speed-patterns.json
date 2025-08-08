@@ -36,49 +36,93 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 100000
-              },
-              {
-                "color": "red",
-                "value": 200000
               }
             ]
           },
-          "unit": "µs",
+          "unit": "Kbits",
           "unitScale": true
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Max Latency"
+              "options": "Max Download"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "High"
+                "value": "High Download"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Min Latency"
+              "options": "Min Download"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Low"
+                "value": "Low Download"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max Upload"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "High Upload"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Min Upload"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Low Upload"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 0
@@ -105,7 +149,7 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: max)\n  |> yield(name: \"Max Latency\")",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: max)\n  |> yield(name: \"Max Download\")",
           "refId": "A"
         },
         {
@@ -113,72 +157,28 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: min)\n  |> yield(name: \"Min Latency\")",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: min)\n  |> yield(name: \"Min Download\")",
           "refId": "B"
-        }
-      ],
-      "title": "Daily High & Low Latency",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P65EB462968463E7E"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "µs",
-          "unitScale": true
         },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": ["sum"],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "10.3.1",
-      "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> quantile(q: 0.50, method: \"estimate_tdigest\")\n  |> map(fn: (r) => ({ r with _field: \"P50\" }))\n  |> yield(name: \"P50\")\n\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> quantile(q: 0.95, method: \"estimate_tdigest\")\n  |> map(fn: (r) => ({ r with _field: \"P95\" }))\n  |> yield(name: \"P95\")\n\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> quantile(q: 0.99, method: \"estimate_tdigest\")\n  |> map(fn: (r) => ({ r with _field: \"P99\" }))\n  |> yield(name: \"P99\")",
-          "refId": "A"
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"upload_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: max)\n  |> yield(name: \"Max Upload\")",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P65EB462968463E7E"
+          },
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"upload_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 1d, fn: min)\n  |> yield(name: \"Min Upload\")",
+          "refId": "D"
         }
       ],
-      "title": "Latency Percentiles",
-      "type": "table"
+      "title": "Daily High & Low Speeds",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -205,7 +205,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Excellent"
+              "options": "High"
             },
             "properties": [
               {
@@ -220,7 +220,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "OK"
+              "options": "Moderate"
             },
             "properties": [
               {
@@ -235,7 +235,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Poor"
+              "options": "Low"
             },
             "properties": [
               {
@@ -251,11 +251,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 6
+        "w": 12,
+        "x": 12,
+        "y": 0
       },
-      "id": 3,
+      "id": 2,
       "options": {
         "legend": {
           "displayMode": "list",
@@ -281,11 +281,11 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> map(fn: (r) => ({ r with state: if r._value < 50000 then \"Excellent\" else if r._value < 100000 then \"OK\" else \"Poor\" }))\n  |> group(columns: [\"state\"])\n  |> count()\n  |> group()\n  |> pivot(rowKey: [], columnKey: [\"state\"], valueColumn: \"_value\")",
+          "query": "maxSpeed = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> max()\n  |> findRecord(fn: (key) => true, idx: 0)\n\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> map(fn: (r) => ({ r with category: \n      if r._value > maxSpeed._value * 0.8 then \"High\" \n      else if r._value > maxSpeed._value * 0.4 then \"Moderate\" \n      else \"Low\" }))\n  |> group(columns: [\"category\"])\n  |> count()\n  |> group()\n  |> pivot(rowKey: [], columnKey: [\"category\"], valueColumn: \"_value\")",
           "refId": "A"
         }
       ],
-      "title": "Latency State Breakdown",
+      "title": "Speed Distribution",
       "type": "piechart"
     },
     {
@@ -321,7 +321,7 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": 900000,
+            "spanNulls": 1800000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -340,18 +340,18 @@
               }
             ]
           },
-          "unit": "µs",
+          "unit": "Kbits",
           "unitScale": true
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 6
+        "w": 12,
+        "x": 0,
+        "y": 8
       },
-      "id": 4,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -371,11 +371,11 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 15m, fn: stddev)\n  |> yield(name: \"Volatility\")",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> aggregateWindow(every: 30m, fn: stddev)\n  |> yield(name: \"Volatility\")",
           "refId": "A"
         }
       ],
-      "title": "Latency Volatility Over Time",
+      "title": "Speed Volatility",
       "type": "timeseries"
     },
     {
@@ -385,29 +385,14 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "red",
-            "mode": "fixed"
-          },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 50,
-            "gradientMode": "none",
             "hideFrom": {
-              "legend": false,
               "tooltip": false,
-              "viz": false
+              "viz": false,
+              "legend": false
             },
-            "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
             }
           },
           "mappings": [],
@@ -417,41 +402,62 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
               }
             ]
           },
-          "unit": "short",
           "unitScale": true
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 6
+        "w": 12,
+        "x": 12,
+        "y": 8
       },
-      "id": 5,
+      "id": 4,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.9,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+        "calculate": false,
+        "cellGap": 1,
+        "cellValues": {},
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-red",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "RdYlGn",
+          "steps": 64
         },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": false
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
         "tooltip": {
           "mode": "single",
-          "sort": "none"
+          "showColorScale": false,
+          "yHistogram": false
         },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
+        }
       },
       "pluginVersion": "10.3.1",
       "targets": [
@@ -460,17 +466,17 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> filter(fn: (r) => r._field == \"latency_avg_us\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> filter(fn: (r) => r._value > 200000)\n  |> aggregateWindow(every: 1h, fn: count)\n  |> yield(name: \"Spikes\")",
+          "query": "maxSpeed = from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> max()\n  |> findRecord(fn: (key) => true, idx: 0)\n\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> filter(fn: (r) => r._field == \"download_kbps\")\n  |> filter(fn: (r) => r.orb_name == \"${orb_name:pipe}\")\n  |> map(fn: (r) => ({ r with _value: if r._value < maxSpeed._value * 0.25 then 1.0 else 0.0 }))\n  |> aggregateWindow(every: 1h, fn: mean)",
           "refId": "A"
         }
       ],
-      "title": "Latency Spikes Timeline (>200ms)",
-      "type": "barchart"
+      "title": "Slow Periods Timeline (<25% of Max Speed)",
+      "type": "heatmap"
     }
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["orb", "responsiveness", "weather"],
+  "tags": ["orb", "speed", "performance"],
   "templating": {
     "list": [
       {
@@ -483,14 +489,14 @@
           "type": "influxdb",
           "uid": "P65EB462968463E7E"
         },
-        "definition": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group(columns: [\"orb_name\"])\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"_value\"])",
+        "definition": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> group(columns: [\"orb_name\"])\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"_value\"])",
         "hide": 0,
         "includeAll": false,
         "label": "Orb Name",
         "multi": false,
         "name": "orb_name",
         "options": [],
-        "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"responsiveness\")\n  |> group(columns: [\"orb_name\"])\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"_value\"])",
+        "query": "from(bucket: \"orb_metrics\")\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"speed_results\")\n  |> group(columns: [\"orb_name\"])\n  |> distinct(column: \"orb_name\")\n  |> keep(columns: [\"_value\"])",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -500,14 +506,14 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
-  "title": "Responsiveness Report (Weather-Style)",
-  "uid": "responsiveness-report",
+  "title": "Speed Patterns",
+  "uid": "speed-patterns",
   "version": 1,
   "weekStart": ""
 }
