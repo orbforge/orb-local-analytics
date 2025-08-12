@@ -1,289 +1,220 @@
 #!/usr/bin/env python3
-"""
-Orb Local Analytics Configuration Script
 
-This script prompts the user for Orb inputs and datasets, then generates
-a telegraf.conf file with the appropriate HTTP input configurations.
-"""
+from __future__ import annotations
 
+import json
 import os
-import sys
 import random
 import re
-import json
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Dict, Iterable, List, Sequence, Tuple
 
-def get_data_delivery() -> str:
-    """
-    Prompt user to select between http api vs http push
-    Returns method selected
-    """
-    print("\n== DATA DELIVERY METHOD ==")
-    print("API - Poll individual Orbs to pull data into Telegraf.") 
-    print("Push - Orbs post data directly to the Telegraf endpoint.")
-    print("NOTE: Push is only supported for certain Orb Cloud plans, please ensure it's supported for you in Orb Cloud before configuring.")
+# --------------------------------------------------------------------------------------
+# Constants & Paths
+# --------------------------------------------------------------------------------------
 
-    method = "api"
+BASE_DIR = Path(__file__).parent
+TEMPLATES_DIR = BASE_DIR / "templates"
+TELEGRAF_CONF = BASE_DIR / "telegraf.conf"
+TELEGRAF_BACKUP = TELEGRAF_CONF.with_suffix(".conf.backup")
+
+AVAILABLE_DATASETS: List[str] = [
+    "scores_1m",
+    "responsiveness_1s",
+    "speed_results",
+    "web_responsiveness_results",
+]
+
+# dataset name -> template file stem, interval extractor/constant
+TEMPLATE_MAPPING: Dict[str, str] = {
+    r"^scores_(.+)$": "input_scores",
+    r"^responsiveness_(.+)$": "input_responsiveness",
+    r"^speed_results$": "input_speed",
+    r"^web_responsiveness_results$": "input_web_responsiveness",
+}
+
+DEFAULT_INTERVAL_BY_TEMPLATE = {
+    "input_speed": "30s",
+    "input_web_responsiveness": "30s",
+}
+
+HTTP_LISTENER_TEMPLATE = "input_http_listener"
+AGENT_TEMPLATE = "agent"
+OUTPUT_TEMPLATE = "output"
+
+# --------------------------------------------------------------------------------------
+# Models
+# --------------------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Orb:
+    host: str
+    port: str
+
+    @property
+    def base_url(self) -> str:
+        return f"http://{self.host}:{self.port}"
+
+# --------------------------------------------------------------------------------------
+# IO Helpers
+# --------------------------------------------------------------------------------------
+
+def prompt(msg: str, default: str | None = None, validator=None) -> str:
+    """
+    Prompt the user once; apply default and optional validator.
+    """
+    suffix = f" [{default}]" if default else ""
     while True:
-        m = input("Select api or push delivery method [api]: ") or "api"
-        method = m.lower().strip()
-        if method == "":
-            method = "api"
+        val = input(f"{msg}{suffix}: ").strip()
+        if not val and default is not None:
+            val = default
+        if validator and not validator(val):
+            print("Invalid value, please try again.")
+            continue
+        return val
 
-        if method != "api" and method != "push":
+def select_from_list(name: str, options: Sequence[str]) -> List[str]:
+    """
+    Allow comma-separated selection by index or by name, de-duplicated.
+    """
+    print(f"\n=== {name.upper()} SELECTION ===")
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+    print("\nEnter numbers (comma-separated) or names (also comma-separated)")
+    print("Examples: 1,3  or  scores_1m,speed_results")
+
+    while True:
+        raw = input(f"{name.capitalize()} to enable: ").strip()
+        if not raw:
+            print("Please select at least one.")
             continue
 
-        print(f"Using {method} delivery method.")
-        return method
-
-def get_orb_inputs() -> List[Tuple[str, str]]:
-    """
-    Prompt user for Orb inputs (hostname, port).
-    Returns list of tuples: (hostname, port)
-    """
-    print("\n=== ORB INPUT CONFIGURATION ===")
-    print("Enter Orb instances you'd like to use as inputs.")
-    print("Note: They must be routable/accessible from this machine.")
-    print("Press Enter with empty hostname to finish.\n")
-    
-    orbs = []
-    while True:
-        hostname = input(f"Orb #{len(orbs) + 1} hostname (or press Enter to finish): ").strip()
-        if not hostname:
-            break
-            
-        port = input(f"Port for {hostname} [8000]: ").strip() or "8000"
-        
-        orbs.append((hostname, port))
-        print(f"Added: {hostname}:{port}\n")
-    
-    if not orbs:
-        print("No Orbs configured. Exiting.")
-        sys.exit(1)
-        
-    return orbs
-
-
-def parse_dataset_info(dataset_name: str) -> Tuple[str, str]:
-    """
-    Parse dataset name to extract template type and interval.
-    
-    Args:
-        dataset_name: e.g., "responsiveness_1s", "scores_1m", "speed_results"
-        
-    Returns:
-        Tuple of (template_name, interval)
-    """
-    # Map dataset patterns to template names
-    template_mapping = {
-        r"^scores_(.+)$": "input_scores",
-        r"^responsiveness_(.+)$": "input_responsiveness", 
-        r"^speed_results$": "input_speed",
-        r"^web_responsiveness_results$": "input_web_responsiveness"
-    }
-    
-    for pattern, template_name in template_mapping.items():
-        match = re.match(pattern, dataset_name)
-        if match:
-            if template_name in ["input_speed", "input_web_responsiveness"]:
-                # These don't have intervals in their names
-                return template_name, "30s"  # Default interval
-            else:
-                # Extract interval from match group
-                interval = match.group(1)
-                return template_name, interval
-    
-    raise ValueError(f"Unknown dataset format: {dataset_name}")
-
-
-def get_datasets() -> List[str]:
-    """
-    Prompt user for datasets to enable.
-    Returns list of dataset names.
-    """
-    print("\n=== DATASET CONFIGURATION ===")
-    print("Available datasets:")
-    available_datasets = [
-        "scores_1m",
-        "responsiveness_1s", 
-        "speed_results",
-        "web_responsiveness_results"
-    ]
-    
-    for i, dataset in enumerate(available_datasets, 1):
-        print(f"  {i}. {dataset}")
-    
-    print("\nEnter dataset numbers (comma-separated) or dataset names:")
-    print("Example: 1,3 or scores_1m,speed_results")
-    
-    while True:
-        selection = input("Datasets to enable: ").strip()
-        if not selection:
-            print("Please select at least one dataset.")
-            continue
-            
-        selected_datasets = []
-        
-        # Parse input (could be numbers or names)
-        for item in selection.split(','):
-            item = item.strip()
-            
-            # Check if it's a number
+        selected: List[str] = []
+        for item in (x.strip() for x in raw.split(",")):
+            if not item:
+                continue
             if item.isdigit():
                 idx = int(item) - 1
-                if 0 <= idx < len(available_datasets):
-                    selected_datasets.append(available_datasets[idx])
+                if 0 <= idx < len(options):
+                    selected.append(options[idx])
                 else:
-                    print(f"Invalid dataset number: {item}")
-                    selected_datasets = []
+                    print(f"Out of range: {item}")
+                    selected = []
                     break
-            # Check if it's a dataset name
-            elif item in available_datasets:
-                selected_datasets.append(item)
+            elif item in options:
+                selected.append(item)
             else:
-                print(f"Unknown dataset: {item}")
-                selected_datasets = []
+                print(f"Unknown option: {item}")
+                selected = []
                 break
-        
-        if selected_datasets:
-            return list(set(selected_datasets))  # Remove duplicates
-        print("Please try again.")
 
+        if selected:
+            # remove duplicates preserving order
+            seen = set()
+            deduped = [x for x in selected if not (x in seen or seen.add(x))]
+            return deduped
 
-def load_template(template_name: str) -> str:
-    """Load a template file from the templates directory."""
-    template_path = Path(__file__).parent / "templates" / f"{template_name}.conf"
-    
-    if not template_path.exists():
-        raise FileNotFoundError(f"Template not found: {template_path}")
-        
-    return template_path.read_text()
+def print_section(title: str) -> None:
+    print("\n" + "=" * 60)
+    print(title)
+    print("=" * 60)
 
-def generate_push_telegraf_config(port: int) -> str:
-    config = load_template("input_http_listener")
-    config = config.replace('{{PORT}}', port)
+def load_template(stem: str) -> str:
+    path = TEMPLATES_DIR / f"{stem}.conf"
+    if not path.exists():
+        raise FileNotFoundError(f"Template not found: {path}")
+    return path.read_text()
 
-    pattern = r"tag_keys\s*=\s*\[\s*((?:.|\n)*?)\s*\]"
-
-    #gather tags from other templates
-    tags = set([])
-    for fn in os.listdir('templates'):
-        if fn.startswith("input_") and fn != "input_http_listener.conf":
-            template = load_template(fn.split('.')[0])
-            match = re.search(pattern, template)
-            if match:
-                vals = match.group(1)
-                tags.update(re.findall(r'("[^"]+")', vals))
-
-    config = config.replace('{{TAGS}}', ",\n\t".join(tags))
-    config = config + "\n" + load_template("output")
-
-    return config
-
-
-def generate_api_telegraf_config(orbs: List[Tuple[str, str]], datasets: List[str]) -> str:
+def render_template(stem: str, **kwargs) -> str:
     """
-    Generate the complete telegraf.conf content.
-    
-    Args:
-        orbs: List of (hostname, port) tuples
-        datasets: List of dataset names to include
-        
-    Returns:
-        Complete telegraf configuration as string
+    Lightweight templating using Python's format(). Templates should contain
+    placeholders in the form {name}.
     """
-    config_parts = []
-    
-    # Generate a random 5-digit collector ID
+    return load_template(stem).format(**kwargs)
+
+# --------------------------------------------------------------------------------------
+# Parsing & Config assembly
+# --------------------------------------------------------------------------------------
+
+def parse_dataset(dataset: str) -> Tuple[str, str]:
+    """
+    Map dataset -> (template_stem, interval)
+    """
+    for pattern, template_stem in TEMPLATE_MAPPING.items():
+        m = re.match(pattern, dataset)
+        if not m:
+            continue
+        if template_stem in DEFAULT_INTERVAL_BY_TEMPLATE:
+            return template_stem, DEFAULT_INTERVAL_BY_TEMPLATE[template_stem]
+        return template_stem, m.group(1)
+    raise ValueError(f"Unknown dataset: {dataset!r}")
+
+def gather_tag_keys_from_templates() -> List[str]:
+    """
+    Find all tag_keys across input_* templates for the HTTP listener tag union.
+    """
+    tags: set[str] = set()
+    tag_array_pat = re.compile(r"tag_keys\s*=\s*\[\s*((?:.|\n)*?)\s*\]", re.MULTILINE)
+    for fn in os.listdir(TEMPLATES_DIR):
+        if not fn.startswith("input_") or fn == f"{HTTP_LISTENER_TEMPLATE}.conf":
+            continue
+        stem = fn.split(".")[0]
+        m = tag_array_pat.search(load_template(stem))
+        if not m:
+            continue
+        vals = m.group(1)
+        tags.update(re.findall(r'("[^"]+")', vals))
+    return sorted(tags)
+
+def build_api_inputs(orbs: Sequence[Orb], datasets: Sequence[str], collector_id: str) -> List[str]:
+    inputs: List[str] = []
+    for orb in orbs:
+        for ds in datasets:
+            stem, interval = parse_dataset(ds)
+            inputs.append(
+                render_template(
+                    stem,
+                    url=orb.base_url,
+                    collector_id=collector_id,
+                    interval=interval,
+                )
+            )
+            inputs.append("")  # spacer
+    return inputs
+
+def generate_telegraf_for_api(orbs: Sequence[Orb], datasets: Sequence[str]) -> str:
     collector_id = str(random.randint(10000, 99999))
     print(f"Generated collector ID: {collector_id}")
-    
-    # Add agent configuration
-    config_parts.append(load_template("agent"))
-    config_parts.append("")  # Empty line
-    
-    # Add HTTP inputs for each orb/dataset combination
-    for hostname, port in orbs:
-        url = f"http://{hostname}:{port}"
-        
-        for dataset in datasets:
-            try:
-                template_name, interval = parse_dataset_info(dataset)
-                template = load_template(template_name)
-                # Replace placeholders
-                input_config = template.format(url=url, collector_id=collector_id, interval=interval)
-                config_parts.append(input_config)
-                config_parts.append("")  # Empty line between inputs
-            except FileNotFoundError:
-                print(f"Warning: Template not found for dataset '{dataset}', skipping.")
-                continue
-            except ValueError as e:
-                print(f"Warning: {e}, skipping.")
-                continue
-    
-    # Add output configuration
-    config_parts.append(load_template("output"))
-    
-    return "\n".join(config_parts)
 
+    parts: List[str] = [load_template(AGENT_TEMPLATE), ""]
+    parts.extend(build_api_inputs(orbs, datasets, collector_id))
+    parts.append(load_template(OUTPUT_TEMPLATE))
+    return "\n".join(parts)
 
-def backup_existing_config():
-    """Backup existing telegraf.conf if it exists."""
-    config_path = Path(__file__).parent / "telegraf.conf"
-    if config_path.exists():
-        backup_path = config_path.with_suffix(".conf.backup")
-        backup_path.write_text(config_path.read_text())
-        print(f"Existing configuration backed up to: {backup_path}")
+def generate_telegraf_for_push(port: str) -> str:
+    tags = gather_tag_keys_from_templates()
+    listener = render_template(
+        HTTP_LISTENER_TEMPLATE,
+        PORT=port,
+        TAGS=",\n\t".join(tags),
+    )
+    return listener + "\n" + load_template(OUTPUT_TEMPLATE)
 
+def backup_existing_config() -> None:
+    if TELEGRAF_CONF.exists():
+        TELEGRAF_BACKUP.write_text(TELEGRAF_CONF.read_text())
+        print(f"Existing configuration backed up to: {TELEGRAF_BACKUP}")
 
-def generate_orb_config_json(datasets: List[str], port: str) -> Dict:
-    """
-    Generate the JSON configuration that needs to be applied to a specific Orb.
-    
-    Args:
-        datasets: List of dataset names to include
-        port: Port number for the API for this specific Orb
-        
-    Returns:
-        Dictionary representing the Orb configuration JSON
-    """
-    # Build the API configuration list (include port + all datasets)
-    api_config = [f"port={port}"] + datasets
-    
-    # Build the datasets configuration list (just the datasets)
-    datasets_config = datasets.copy()
-    
+def orb_config_json(datasets: Sequence[str], port: str) -> Dict:
     return {
-        "datasets.api": api_config,
-        "datasets.datasets": datasets_config
+        "datasets.api": [f"port={port}", *datasets],
+        "datasets.datasets": list(datasets),
     }
 
-def display_orb_push_configurations(url: str, datasets: List[str]):
-    print("\n" + "=" * 60)
-    print("📋 ORB CLOUD CONFIGURATION REQUIRED")
-    config = json.dumps({
-        "datasets.datasets": datasets,
-        "datasets.push": datasets + [
-            "identifiable=true",
-            "format=json",
-            f"url={url}"
-        ]
-    }, indent=2)
-
-    print(config + "\n")
-
-def display_orb_api_configurations(orbs: List[Tuple[str, str]], datasets: List[str]):
-    """
-    Display the JSON configurations that users need to apply to each Orb.
-    
-    Args:
-        orbs: List of (hostname, port) tuples
-        datasets: List of dataset names
-    """
-    print("\n" + "=" * 60)
-    print("📋 ORB CLOUD CONFIGURATION REQUIRED")
-    print("=" * 60)
+def show_orb_cloud_instructions_for_api(orbs: Sequence[Orb], datasets: Sequence[str]) -> None:
+    print_section("ORB CLOUD CONFIGURATION REQUIRED")
     print("For each Orb hostname below, you need to:")
     print("1. Go to https://cloud.orb.net/orbs")
     print("2. Find the Orb with the matching hostname")
@@ -291,98 +222,127 @@ def display_orb_api_configurations(orbs: List[Tuple[str, str]], datasets: List[s
     print("4. Configure the Orb with the JSON below")
     print("6. Restart the Orb sensor (restart twice for now, long story)")
     print("\n" + "-" * 60)
-    
-    for hostname, port in orbs:
-        print(f"\n🔧 Configuration for Orb: {hostname}:{port}")
+
+    for orb in orbs:
+        print(f"\n🔧 Configuration for Orb: {orb.host}:{orb.port}")
         print("-" * 40)
-        
-        orb_config = generate_orb_config_json(datasets, port)
-        json_output = json.dumps(orb_config, indent=2)
-        print(json_output)
+        print(json.dumps(orb_config_json(datasets, orb.port), indent=2))
         print()
 
+def show_orb_cloud_instructions_for_push(url: str, datasets: Sequence[str]) -> None:
+    print_section("ORB CLOUD CONFIGURATION REQUIRED")
+    cfg = {
+        "datasets.datasets": list(datasets),
+        "datasets.push": [
+            *datasets,
+            "identifiable=true",
+            "format=json",
+            f"url={url}",
+        ],
+    }
+    print(json.dumps(cfg, indent=2))
+    print()
 
-def main():
-    """Main configuration function."""
+# --------------------------------------------------------------------------------------
+# Prompts
+# --------------------------------------------------------------------------------------
+
+def prompt_delivery_method() -> str:
+    print("\n== DATA DELIVERY METHOD ==")
+    print("API  - Telegraf polls individual Orbs (pull).")
+    print("Push - Orbs post directly to the Telegraf HTTP listener.")
+    print("NOTE: Push is only supported for certain Orb Cloud customers.")
+    while True:
+        m = prompt("Select api or push delivery method", default="api").lower()
+        if m in {"api", "push"}:
+            print(f"Using {m} delivery method.")
+            return m
+
+def prompt_orbs() -> List[Orb]:
+    print("\n=== ORB INPUT CONFIGURATION ===")
+    print("Enter Orb instances to use as inputs (hostnames must be routable from this machine).")
+    print("Press Enter with empty hostname to finish.\n")
+
+    orbs: List[Orb] = []
+    while True:
+        host = input(f"Orb #{len(orbs) + 1} hostname (or press Enter to finish): ").strip()
+        if not host:
+            break
+        port = prompt(f"Port for {host}", default="8000")
+        orbs.append(Orb(host=host, port=port))
+        print(f"Added: {host}:{port}\n")
+
+    if not orbs:
+        print("No Orbs configured. Exiting.")
+        sys.exit(1)
+    return orbs
+
+def prompt_datasets() -> List[str]:
+    return select_from_list("datasets", AVAILABLE_DATASETS)
+
+# --------------------------------------------------------------------------------------
+# Main
+# --------------------------------------------------------------------------------------
+
+def main() -> None:
     print("Orb Local Analytics Configuration")
     print("=" * 40)
-    
+
     try:
-        # Get user inputs
-        method = get_data_delivery()
-        datasets = get_datasets()
+        method = prompt_delivery_method()
+        datasets = prompt_datasets()
 
         print(f"\nDatasets ({len(datasets)}):")
-        for dataset in datasets:
-            print(f"  - {dataset}")
+        for ds in datasets:
+            print(f"  - {ds}")
 
         if method == "api":
             print("\n=== DATA API CONFIGURATION ===")
-            orbs = get_orb_inputs()
-        
-            # Summary
+            orbs = prompt_orbs()
             print("\n=== CONFIGURATION SUMMARY ===")
             print("Delivery: API")
             print(f"Orb instances ({len(orbs)}):")
-            for hostname, port in orbs:
-                print(f"  - {hostname}:{port}")
+            for o in orbs:
+                print(f"  - {o.host}:{o.port}")
         else:
-            print("\n=== DATA PUSH Configuration ===")
-            print("Note: Telegraf host must be reachable from all Orbs")
-            while True:
-                telegraf_host = input("Telegraf hostname/ip address: ")
-                if telegraf_host != "":
-                    break
-
-            port = input(f"Telegraf ingest port [7081]: ").strip() or "7081"
-
+            print("\n=== DATA PUSH CONFIGURATION ===")
+            print("Note: Telegraf host must be reachable from all Orbs.")
+            telegraf_host = prompt("Telegraf hostname/ip address")
+            port = prompt("Telegraf listener port", default="7081")
             print("\n=== CONFIGURATION SUMMARY ===")
             print("Delivery: Push")
-            print(f"Telegraf host: {telegraf_host}")
-            print(f"Port: {port}")
+            print(f"Telegraf URL: http://{telegraf_host}:{port}/ingest")
 
-        # Confirm
-        confirm = input("\nGenerate telegraf.conf with this configuration? [Y/n]: ").strip().lower()
-        if confirm and confirm not in ['y', 'yes']:
-            print("Configuration cancelled.")
-            return
-        
-        # Backup existing config
+        # Build telegraf.conf
         backup_existing_config()
-        
-        # Generate new config
         if method == "api":
-            config_content = generate_api_telegraf_config(orbs, datasets)
+            cfg = generate_telegraf_for_api(orbs, datasets)
         else:
-            config_content = generate_push_telegraf_config(port)
-        
-        # Write new config
-        config_path = Path(__file__).parent / "telegraf.conf"
-        config_path.write_text(config_content)
-        
-        print(f"\n✅ New telegraf.conf generated successfully!")
-        
-        # Display Orb configuration requirements
+            cfg = generate_telegraf_for_push(port)
+
+        TELEGRAF_CONF.write_text(cfg)
+        print("\n✅ New telegraf.conf generated successfully!")
+
+        # Instructions for Orb Cloud configuration
         if method == "api":
             print(f"Total HTTP inputs configured: {len(orbs) * len(datasets)}")
-            display_orb_api_configurations(orbs, datasets)
+            show_orb_cloud_instructions_for_api(orbs, datasets)
         else:
-            telegraf_url = f"http://{telegraf_host}:{port}/ingest"
-            display_orb_push_configurations(telegraf_url, datasets)
-        
+            url = f"http://{telegraf_host}:{port}/ingest"
+            show_orb_cloud_instructions_for_push(url, datasets)
+
         print("🚀 Next steps:")
         print("1. Configure your Orbs as shown above")
         print("2. Start your analytics stack: docker compose up -d")
         print("   (or if it's already running, restart telegraf: docker restart telegraf)")
         print("3. Check that data is flowing in Grafana at http://localhost:3000")
-        
+
     except KeyboardInterrupt:
         print("\n\nConfiguration cancelled by user.")
         sys.exit(1)
     except Exception as e:
         print(f"\n❌ Error: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
