@@ -14,6 +14,28 @@ import json
 from pathlib import Path
 from typing import List, Tuple, Dict
 
+def get_data_delivery() -> str:
+    """
+    Prompt user to select between http api vs http push
+    Returns method selected
+    """
+    print("\n== DATA DELIVERY METHOD ==")
+    print("API - Poll individual Orbs to pull data into Telegraf.") 
+    print("Push - Orbs post data directly to the Telegraf endpoint.")
+    print("NOTE: Push is only supported for certain Orb Cloud plans, please ensure it's supported for you in Orb Cloud before configuring.")
+
+    method = "api"
+    while True:
+        m = input("Select api or push delivery method [api]: ") or "api"
+        method = m.lower().strip()
+        if method == "":
+            method = "api"
+
+        if method != "api" and method != "push":
+            continue
+
+        print(f"Using {method} delivery method.")
+        return method
 
 def get_orb_inputs() -> List[Tuple[str, str]]:
     """
@@ -48,7 +70,7 @@ def parse_dataset_info(dataset_name: str) -> Tuple[str, str]:
     Parse dataset name to extract template type and interval.
     
     Args:
-        dataset_name: e.g., "responsiveness_15s", "scores_1m", "speed_results"
+        dataset_name: e.g., "responsiveness_1s", "scores_1m", "speed_results"
         
     Returns:
         Tuple of (template_name, interval)
@@ -84,8 +106,6 @@ def get_datasets() -> List[str]:
     print("Available datasets:")
     available_datasets = [
         "scores_1m",
-        "responsiveness_1m",
-        "responsiveness_15s", 
         "responsiveness_1s", 
         "speed_results",
         "web_responsiveness_results"
@@ -95,7 +115,7 @@ def get_datasets() -> List[str]:
         print(f"  {i}. {dataset}")
     
     print("\nEnter dataset numbers (comma-separated) or dataset names:")
-    print("Example: 1,3 or responsiveness_15s,speed_results")
+    print("Example: 1,3 or scores_1m,speed_results")
     
     while True:
         selection = input("Datasets to enable: ").strip()
@@ -140,8 +160,29 @@ def load_template(template_name: str) -> str:
         
     return template_path.read_text()
 
+def generate_push_telegraf_config(port: int) -> str:
+    config = load_template("input_http_listener")
+    config = config.replace('{{PORT}}', port)
 
-def generate_telegraf_config(orbs: List[Tuple[str, str]], datasets: List[str]) -> str:
+    pattern = r"tag_keys\s*=\s*\[\s*((?:.|\n)*?)\s*\]"
+
+    #gather tags from other templates
+    tags = set([])
+    for fn in os.listdir('templates'):
+        if fn.startswith("input_") and fn != "input_http_listener.conf":
+            template = load_template(fn.split('.')[0])
+            match = re.search(pattern, template)
+            if match:
+                vals = match.group(1)
+                tags.update(re.findall(r'("[^"]+")', vals))
+
+    config = config.replace('{{TAGS}}', ",\n\t".join(tags))
+    config = config + "\n" + load_template("output")
+
+    return config
+
+
+def generate_api_telegraf_config(orbs: List[Tuple[str, str]], datasets: List[str]) -> str:
     """
     Generate the complete telegraf.conf content.
     
@@ -218,8 +259,21 @@ def generate_orb_config_json(datasets: List[str], port: str) -> Dict:
         "datasets.datasets": datasets_config
     }
 
+def display_orb_push_configurations(url: str, datasets: List[str]):
+    print("\n" + "=" * 60)
+    print("📋 ORB CLOUD CONFIGURATION REQUIRED")
+    config = json.dumps({
+        "datasets.datasets": datasets,
+        "datasets.push": datasets + [
+            "identifiable=true",
+            "format=json",
+            f"url={url}"
+        ]
+    }, indent=2)
 
-def display_orb_configurations(orbs: List[Tuple[str, str]], datasets: List[str]):
+    print(config + "\n")
+
+def display_orb_api_configurations(orbs: List[Tuple[str, str]], datasets: List[str]):
     """
     Display the JSON configurations that users need to apply to each Orb.
     
@@ -255,19 +309,38 @@ def main():
     
     try:
         # Get user inputs
-        orbs = get_orb_inputs()
+        method = get_data_delivery()
         datasets = get_datasets()
-        
-        # Summary
-        print("\n=== CONFIGURATION SUMMARY ===")
-        print(f"Orb instances ({len(orbs)}):")
-        for hostname, port in orbs:
-            print(f"  - {hostname}:{port}")
-        
+
         print(f"\nDatasets ({len(datasets)}):")
         for dataset in datasets:
             print(f"  - {dataset}")
+
+        if method == "api":
+            print("\n=== DATA API CONFIGURATION ===")
+            orbs = get_orb_inputs()
         
+            # Summary
+            print("\n=== CONFIGURATION SUMMARY ===")
+            print("Delivery: API")
+            print(f"Orb instances ({len(orbs)}):")
+            for hostname, port in orbs:
+                print(f"  - {hostname}:{port}")
+        else:
+            print("\n=== DATA PUSH Configuration ===")
+            print("Note: Telegraf host must be reachable from all Orbs")
+            while True:
+                telegraf_host = input("Telegraf hostname/ip address: ")
+                if telegraf_host != "":
+                    break
+
+            port = input(f"Telegraf ingest port [7081]: ").strip() or "7081"
+
+            print("\n=== CONFIGURATION SUMMARY ===")
+            print("Delivery: Push")
+            print(f"Telegraf host: {telegraf_host}")
+            print(f"Port: {port}")
+
         # Confirm
         confirm = input("\nGenerate telegraf.conf with this configuration? [Y/n]: ").strip().lower()
         if confirm and confirm not in ['y', 'yes']:
@@ -278,17 +351,24 @@ def main():
         backup_existing_config()
         
         # Generate new config
-        config_content = generate_telegraf_config(orbs, datasets)
+        if method == "api":
+            config_content = generate_api_telegraf_config(orbs, datasets)
+        else:
+            config_content = generate_push_telegraf_config(port)
         
         # Write new config
         config_path = Path(__file__).parent / "telegraf.conf"
         config_path.write_text(config_content)
         
         print(f"\n✅ New telegraf.conf generated successfully!")
-        print(f"Total HTTP inputs configured: {len(orbs) * len(datasets)}")
         
         # Display Orb configuration requirements
-        display_orb_configurations(orbs, datasets)
+        if method == "api":
+            print(f"Total HTTP inputs configured: {len(orbs) * len(datasets)}")
+            display_orb_api_configurations(orbs, datasets)
+        else:
+            telegraf_url = f"http://{telegraf_host}:{port}/ingest"
+            display_orb_push_configurations(telegraf_url, datasets)
         
         print("🚀 Next steps:")
         print("1. Configure your Orbs as shown above")
