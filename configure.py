@@ -313,6 +313,12 @@ def main() -> None:
             print("Delivery: Push")
             print(f"Telegraf URL: http://{telegraf_host}:{port}/ingest")
 
+        # Confirm
+        confirm = prompt("\nGenerate telegraf.conf with this configuration? [Y/n]: ", default="n").strip().lower()
+        if confirm and confirm not in ['y', 'yes']:
+            print("Configuration cancelled.")
+            return
+
         # Build telegraf.conf
         backup_existing_config()
         if method == "api":
