@@ -19,6 +19,8 @@ services:
       - tig
 
   telegraf:
+    ports:
+      - "7081:7081"
     image: telegraf:1.30
     container_name: telegraf
     depends_on:
