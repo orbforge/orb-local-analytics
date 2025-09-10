@@ -1,11 +1,17 @@
 # orb-local-analytics
-Tools and documentation for setting up local Orb Analytics
+Tools and documentation for setting up local Orb analytics.
 
-## Pre-Setup
+This guide will enable you to self-host a TIG (Telegraf, InfluxDB, Grafana) analytics stack and configure Orbs to send data to that stack for analysis.
 
-1. Decide which Orb hostnames you'd like to pull data from
-2. Run `./configure.py` to generate configs (`telegraf.conf` and Orb Cloud)
-3. (optional) Confirm you can reach the orb at `http://localhost:8000/api/v2/datasets/responsiveness_15s.json?id=123` (example `localhost`, use orb hostname)
+## Pre-Reqs
+1. You will need an active [Orb Cloud](https://cloud.orb.net) account to configure your Orbs for local data analytics
+2. You will need to have one or more Orb sensors or apps linked to your Orb Cloud account
+3. You will need a Docker-enabled host for the analytics stack, which can communicate with the Orbs you intend to collect data from.
+
+## Configuration
+
+1. Run `./configure.py` to generate configs (`telegraf.conf` and Orb Cloud config)
+2. Follow all instructions in the configure.py output to run your selected configuration
 
 ## Setup
 
