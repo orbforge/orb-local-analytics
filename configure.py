@@ -220,7 +220,6 @@ def show_orb_cloud_instructions_for_api(orbs: Sequence[Orb], datasets: Sequence[
     print("2. Find the Orb with the matching hostname")
     print("3. Click 'Edit Config' for that Orb")
     print("4. Configure the Orb with the JSON below")
-    print("6. Restart the Orb sensor (restart twice for now, long story)")
     print("\n" + "-" * 60)
 
     for orb in orbs:
