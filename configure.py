@@ -216,7 +216,7 @@ def orb_config_json(datasets: Sequence[str], port: str) -> Dict:
 def show_orb_cloud_instructions_for_api(orbs: Sequence[Orb], datasets: Sequence[str]) -> None:
     print_section("ORB CLOUD CONFIGURATION REQUIRED")
     print("For each Orb hostname below, you need to:")
-    print("1. Go to https://cloud.orb.net/orbs")
+    print("1. Go to https://cloud.orb.net/status")
     print("2. Find the Orb with the matching hostname")
     print("3. Click 'Edit Config' for that Orb")
     print("4. Configure the Orb with the JSON below")
