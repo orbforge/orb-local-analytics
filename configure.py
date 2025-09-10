@@ -250,8 +250,7 @@ def show_orb_cloud_instructions_for_push(url: str, datasets: Sequence[str]) -> N
 def prompt_delivery_method() -> str:
     print("\n== DATA DELIVERY METHOD ==")
     print("API  - Telegraf polls individual Orbs (pull).")
-    print("Push - Orbs post directly to the Telegraf HTTP listener.")
-    print("NOTE: Push is only supported for certain Orb Cloud customers.")
+    print("Push - Orbs post directly to the Telegraf HTTP listener (requires Orb Cloud features).")
     while True:
         m = prompt("Select api or push delivery method", default="api").lower()
         if m in {"api", "push"}:
