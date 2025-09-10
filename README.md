@@ -6,7 +6,7 @@ This guide will enable you to self-host a TIG (Telegraf, InfluxDB, Grafana) anal
 ## Pre-Reqs
 1. You will need an active [Orb Cloud](https://cloud.orb.net) account to configure your Orbs for local data analytics
 2. You will need to have one or more Orb sensors or apps linked to your Orb Cloud account
-3. You will need a Docker-enabled host for the analytics stack, which can be communicate with the Orbs you intende to collect data from.
+3. You will need a Docker-enabled host for the analytics stack, which can communicate with the Orbs you intend to collect data from.
 
 ## Configuration
 
