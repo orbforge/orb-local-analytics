@@ -484,10 +484,10 @@
         "current": {
           "selected": true,
           "text": [
-            "opensuse"
+            "All"
           ],
           "value": [
-            "opensuse"
+            "$__all"
           ]
         },
         "datasource": {
