@@ -209,8 +209,7 @@ def backup_existing_config() -> None:
 
 def orb_config_json(datasets: Sequence[str], port: str) -> Dict:
     return {
-        "datasets.api": [f"port={port}", *datasets],
-        "datasets.datasets": list(datasets),
+        "datasets.api": [f"port={port}", *datasets]
     }
 
 def show_orb_cloud_instructions_for_api(orbs: Sequence[Orb], datasets: Sequence[str]) -> None:
@@ -231,7 +230,6 @@ def show_orb_cloud_instructions_for_api(orbs: Sequence[Orb], datasets: Sequence[
 def show_orb_cloud_instructions_for_push(url: str, datasets: Sequence[str]) -> None:
     print_section("ORB CLOUD CONFIGURATION REQUIRED")
     cfg = {
-        "datasets.datasets": list(datasets),
         "datasets.push": [
             *datasets,
             "identifiable=true",
@@ -266,7 +264,7 @@ def prompt_orbs() -> List[Orb]:
         host = input(f"Orb #{len(orbs) + 1} hostname (or press Enter to finish): ").strip()
         if not host:
             break
-        port = prompt(f"Port for {host}", default="8000")
+        port = prompt(f"Port for {host}", default="7080")
         orbs.append(Orb(host=host, port=port))
         print(f"Added: {host}:{port}\n")
 
