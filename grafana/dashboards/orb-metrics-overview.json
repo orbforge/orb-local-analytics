@@ -602,7 +602,7 @@
             "type": "influxdb",
             "uid": "P65EB462968463E7E"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and (r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")  and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> drop(columns: [\"_start\", \"_stop\"])\n  |> group(columns: [\"orb_name\"])\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> group(columns: [])\n",
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and (r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")  and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> filter(fn: (r) => exists r.orb_name)\n  |> drop(columns: [\"_start\", \"_stop\"])\n  |> group(columns: [\"orb_name\"])\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> group(columns: [])\n",
           "refId": "A"
         }
       ],
