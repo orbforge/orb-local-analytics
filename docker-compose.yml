@@ -18,6 +18,26 @@ services:
     networks:
       - tig
 
+  influxdbv3:
+    image: influxdb:3-core
+    container_name: influxdbv3
+    ports:
+      - "8181:8181"
+    volumes:
+      - influxdbv3-data:/var/lib/influxdb3
+    environment:
+      - INFLUXDB3_TELEMETRY_DISABLE_UPLOAD=true
+      - INFLUXDB3_ADMIN_TOKEN_FILE=/run/secrets/admin-token
+      - INFLUXDB3_PLUGIN_DIR=/var/lib/influxdb3/plugins
+      - INFLUXDB3_DB_DIR=/var/lib/influxdb3/data
+      - INFLUXDB3_NODE_IDENTIFIER_PREFIX=node0
+      - INFLUXDB3_OBJECT_STORE=file
+
+      # Add any required v3 environment variables here
+    restart: unless-stopped
+    networks:
+      - tig
+
   telegraf:
     ports:
       - "7081:7081"
@@ -25,6 +45,7 @@ services:
     container_name: telegraf
     depends_on:
       - influxdb
+      - influxdbv3
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
     environment:
@@ -45,14 +66,21 @@ services:
       - ./grafana/dashboards:/etc/grafana/dashboards
     depends_on:
       - influxdb
+      - influxdbv3
     restart: unless-stopped
     networks:
       - tig
 
 volumes:
   influxdb-data:
+  influxdbv3-data:
   grafana-data:
 
 networks:
   tig:
     driver: bridge
+
+
+secrets:
+  admin-token:
+    file: admin-token.json
