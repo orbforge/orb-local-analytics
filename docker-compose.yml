@@ -27,14 +27,13 @@ services:
       - influxdbv3-data:/var/lib/influxdb3
     environment:
       - INFLUXDB3_TELEMETRY_DISABLE_UPLOAD=true
-      - INFLUXDB3_ADMIN_TOKEN_FILE=/run/secrets/admin-token
+      - INFLUXDB3_ADMIN_TOKEN_FILE=/run/secrets/admin_token
       - INFLUXDB3_PLUGIN_DIR=/var/lib/influxdb3/plugins
       - INFLUXDB3_DB_DIR=/var/lib/influxdb3/data
       - INFLUXDB3_NODE_IDENTIFIER_PREFIX=node0
       - INFLUXDB3_OBJECT_STORE=file
     secrets:
-    - admin-token
-      # Add any required v3 environment variables here
+      - admin_token
     restart: unless-stopped
     networks:
       - tig
@@ -57,7 +56,7 @@ services:
       - tig
 
   grafana:
-    image: grafana/grafana:10.3.1
+    image: grafana/grafana:12.3
     container_name: grafana
     ports:
       - "3000:3000"
@@ -83,5 +82,5 @@ networks:
 
 
 secrets:
-  admin-token:
-    file: admin-token.json
+  admin_token:
+    file: ./admin-token.json

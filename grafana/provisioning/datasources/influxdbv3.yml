@@ -6,10 +6,10 @@ datasources:
     access: proxy
     url: http://influxdbv3:8181
     jsonData:
-      version: Flux
-      organization: orb
-      defaultBucket: orb_metrics
-      tlsSkipVerify: true
+      version: SQL
+      dbName: orb
+      httpMode: POST
+      insecureGrpc: true
     secureJsonData:
       token: apiv3_iBaIEEl5YxsL6Q4u1ySV7SixHIGVgOSNhADXQj9EOVAciE9vcnD1XlQf8xqytV9AvxdHvwruxtlhYOW3c_xRMg
     isDefault: false
