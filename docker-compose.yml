@@ -1,23 +1,4 @@
 services:
-  influxdb:
-    image: influxdb:2.7
-    container_name: influxdb
-    ports:
-      - "8086:8086"
-    volumes:
-      - influxdb-data:/var/lib/influxdb2
-    environment:
-      - INFLUXDB_REPORTING_DISABLED=true
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=orbsupersecret
-      - DOCKER_INFLUXDB_INIT_ORG=orb
-      - DOCKER_INFLUXDB_INIT_BUCKET=orb_metrics
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=orb-secret-token
-    restart: unless-stopped
-    networks:
-      - tig
-
   influxdbv3:
     image: influxdb:3-core
     container_name: influxdbv3
@@ -41,10 +22,9 @@ services:
   telegraf:
     ports:
       - "7081:7081"
-    image: telegraf:1.30
+    image: telegraf:1.37
     container_name: telegraf
     depends_on:
-      - influxdb
       - influxdbv3
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
@@ -65,14 +45,12 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/etc/grafana/dashboards
     depends_on:
-      - influxdb
       - influxdbv3
     restart: unless-stopped
     networks:
       - tig
 
 volumes:
-  influxdb-data:
   influxdbv3-data:
   grafana-data:
 

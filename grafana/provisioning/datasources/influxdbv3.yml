@@ -12,5 +12,5 @@ datasources:
       insecureGrpc: true
     secureJsonData:
       token: apiv3_iBaIEEl5YxsL6Q4u1ySV7SixHIGVgOSNhADXQj9EOVAciE9vcnD1XlQf8xqytV9AvxdHvwruxtlhYOW3c_xRMg
-    isDefault: false
+    isDefault: true
     editable: true
