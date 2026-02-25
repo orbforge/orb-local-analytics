@@ -23,6 +23,7 @@ TELEGRAF_BACKUP = TELEGRAF_CONF.with_suffix(".conf.backup")
 AVAILABLE_DATASETS: List[str] = [
     "scores_1m",
     "responsiveness_1s",
+    "wifi_link_1s",
     "speed_results",
     "web_responsiveness_results",
 ]
@@ -31,6 +32,7 @@ AVAILABLE_DATASETS: List[str] = [
 TEMPLATE_MAPPING: Dict[str, str] = {
     r"^scores_(.+)$": "input_scores",
     r"^responsiveness_(.+)$": "input_responsiveness",
+    r"^wifi_link(.+)$": "input_wifi_link",
     r"^speed_results$": "input_speed",
     r"^web_responsiveness_results$": "input_web_responsiveness",
 }

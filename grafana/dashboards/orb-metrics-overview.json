@@ -887,6 +887,197 @@
       ],
       "title": "Average Speeds During Period",
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P65EB462968463E7E"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_download_kbps"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Kbits"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "avg_upload_kbps"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Kbits"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 0,
+        "y": 30
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "rssi_avg {_start=\"2026-02-18 16:35:48.621 +0000 UTC\", _stop=\"2026-02-18 19:35:48.621 +0000 UTC\", orb_name=\"Google Pixel 9a\"}"
+          }
+        ]
+      },
+      "pluginVersion": "10.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P65EB462968463E7E"
+          },
+          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"wifi_link\" and\n    (r._field == \"rssi_avg\" or r._field == \"snr_avg\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  // Compute averages per orb & field\n  |> group(columns: [\"orb_name\", \"network_name\", \"bssid\", \"_field\"])\n  |> mean()\n\n  // Make fields into columns\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  // Optional: cleaner column names\n  // Keep only what you want in the table\n  |> drop(columns: [\"_start\", \"_stop\"])\n  |> sort(columns: [\"orb_name\"])\n  |> group(columns: []) // collapse to a single table/frame\n",
+          "refId": "A"
+        }
+      ],
+      "title": "WiFi Metrics",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P65EB462968463E7E"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dBm",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 6,
+        "y": 30
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P65EB462968463E7E"
+          },
+          "query": "option minWindow = 1m\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"wifi_link\" and\n    (r._field == \"rssi_avg\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "RSSI by Orb",
+      "type": "timeseries"
     }
   ],
   "refresh": "1m",
