@@ -20,7 +20,7 @@ This guide will enable you to self-host a TIG (Telegraf, InfluxDB, Grafana) anal
 
 1. Start services
 ```sh
-docker-compose up -d
+docker compose up -d
 ```
 
 2. Go to http://localhost:3000 in your browser
@@ -44,4 +44,11 @@ docker-compose down -v --remove-orphans
 ## Deprecation of the old InfluxDB v2-based Local Analytics
 The first version of this repository used a TIG stack based on InfluxDB v2. This has worked well for us but required us to write complex queries in a proprietary language. InfluxDB v3 now supports using SQL, meaning we can build charts in Grafana much more quickly and more easily. 
 
-Unfortunately, there is no easy path from InfluxDB v2 to InfluxDB v3. Moving to InfluxDB will mean losing your history. You can stay on your current setup for now, but updates will probably be limited to package updates. The code was moved to a [influx-v2 branch](https://github.com/orbforge/orb-local-analytics/tree/influx-v2).
+Unfortunately, there is no easy path from InfluxDB v2 to InfluxDB v3. Moving to InfluxDB v3 will mean losing your history. You can stay on your current setup for now, but updates will probably be limited to package updates. The code was moved to a [influx-v2 branch](https://github.com/orbforge/orb-local-analytics/tree/influx-v2).
+
+If you want to upgrade your Orb Local Analytics stack and move to Influx DB v3, you can perform the following steps 
+```
+docker compose down
+git pull
+docker compose up -d
+```
