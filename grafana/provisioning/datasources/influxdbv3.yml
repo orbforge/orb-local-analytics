@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Orb InfluxDB v3
+    type: influxdb
+    access: proxy
+    url: http://influxdbv3:8181
+    jsonData:
+      version: SQL
+      dbName: orb
+      httpMode: POST
+      insecureGrpc: true
+    secureJsonData:
+      token: apiv3_iBaIEEl5YxsL6Q4u1ySV7SixHIGVgOSNhADXQj9EOVAciE9vcnD1XlQf8xqytV9AvxdHvwruxtlhYOW3c_xRMg
+    isDefault: true
+    editable: true

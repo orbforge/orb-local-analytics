@@ -18,14 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 5,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -39,6 +38,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -58,6 +58,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": 30000,
             "stacking": {
               "group": "A",
@@ -74,12 +75,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -90,6 +90,7 @@
         "y": 0
       },
       "id": 2,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -98,27 +99,82 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1m\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and\n    (r._field == \"orb_score\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.orb_score) AS value\nFROM scores AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "name": "$__timeGroupAlias",
+                "parameters": [
+                  {
+                    "name": "",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [],
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "88ab9ba9-cdef-4012-b456-719c7728f959",
+                  "properties": {
+                    "field": "\"$orbs\"",
+                    "fieldSrc": "field",
+                    "operator": "select_any_in",
+                    "value": [
+                      null
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "89aa898a-0123-4456-b89a-b19c7723252e",
+              "type": "group"
+            }
+          },
+          "table": "scores"
         }
       ],
       "title": "Orb Scores By Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -132,6 +188,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -151,6 +208,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": 30000,
             "stacking": {
               "group": "A",
@@ -167,12 +225,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "µs",
-          "unitScale": true
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -183,6 +240,7 @@
         "y": 0
       },
       "id": 4,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -191,27 +249,58 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1m\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"responsiveness\" and\n    (r._field == \"lag_avg_us\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  avg(s.lag_avg_us) AS value\nFROM responsiveness AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC,2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Lag By Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -227,15 +316,14 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -266,6 +354,12 @@
       "id": 9,
       "options": {
         "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
         "maxVizHeight": 300,
         "minVizHeight": 16,
         "minVizWidth": 8,
@@ -282,15 +376,35 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and\n    (r._field == \"orb_score\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> last()\n  |> group(columns: []) \n  |> sort(columns: [\"_value\"])\n  |> limit(n: 7)\n  |> map(fn: (r) => ({ r with _field: r.orb_name }))\n  |> keep(columns: [\"_time\",\"_value\",\"_field\"])",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.orb_name,\n  selector_last(s.orb_score, time)['value'] AS orb_score\nFROM scores AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  2 ASC\nLIMIT 7",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Worst Orbs by Orb Score",
@@ -299,7 +413,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -313,6 +427,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -332,6 +447,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -348,12 +464,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "Kbits",
-          "unitScale": true
+          "unit": "Kbits"
         },
         "overrides": []
       },
@@ -364,6 +479,7 @@
         "y": 10
       },
       "id": 5,
+      "interval": "1h",
       "options": {
         "legend": {
           "calcs": [],
@@ -372,27 +488,58 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1h\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"speed\" and\n    (r._field == \"download_kbps\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.download_kbps) AS value\nFROM speed AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Download Speed By Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -406,6 +553,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -425,6 +573,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -441,12 +590,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "Kbits",
-          "unitScale": true
+          "unit": "Kbits"
         },
         "overrides": []
       },
@@ -457,6 +605,7 @@
         "y": 10
       },
       "id": 7,
+      "interval": "1h",
       "options": {
         "legend": {
           "calcs": [],
@@ -465,27 +614,58 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1h\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"speed\" and\n    (r._field == \"upload_kbps\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.upload_kbps) AS value\nFROM speed AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Upload Speed By Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -496,6 +676,9 @@
             "align": "auto",
             "cellOptions": {
               "type": "auto"
+            },
+            "footer": {
+              "reducers": []
             },
             "inspect": false
           },
@@ -508,15 +691,14 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -578,14 +760,6 @@
       "id": 10,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
         "frameIndex": 1,
         "showHeader": true,
         "sortBy": [
@@ -595,15 +769,35 @@
           }
         ]
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"scores\" and (r._field == \"orb_score\" or r._field == \"responsiveness_score\" or r._field == \"reliability_score\" or r._field == \"speed_score\")  and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> filter(fn: (r) => exists r.orb_name)\n  |> drop(columns: [\"_start\", \"_stop\"])\n  |> group(columns: [\"orb_name\"])\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> group(columns: [])\n",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.orb_name,\n  selector_last(s.orb_score, time)['value'] AS orb_score,\n  selector_last(s.reliability_score, time)['value'] AS reliability_score,\n  selector_last(s.responsiveness_score, time)['value'] AS responsiveness_score,\n  selector_last(s.speed_score, time)['value'] AS speed_score\nFROM scores AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Scores per Orb",
@@ -612,7 +806,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -626,6 +820,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -645,6 +840,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -661,12 +857,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "µs",
-          "unitScale": true
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -677,6 +872,7 @@
         "y": 20
       },
       "id": 6,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -685,27 +881,58 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1m\n\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"web_responsiveness\" and\n    (r._field == \"ttfb_us\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.ttfb_us) AS value\nFROM web_responsiveness AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "TTFB By Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -719,6 +946,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -738,6 +966,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -754,12 +983,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "percent",
-          "unitScale": true
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -770,6 +998,7 @@
         "y": 20
       },
       "id": 8,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -778,27 +1007,58 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1m\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"responsiveness\" and\n    (r._field == \"packet_loss_pct\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.packet_loss_pct) AS value\nFROM responsiveness AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Packet Loss by Orb",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "value\\s(.*)",
+            "renamePattern": "$1"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -810,6 +1070,9 @@
             "cellOptions": {
               "type": "auto"
             },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -818,15 +1081,14 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -864,25 +1126,37 @@
       "id": 3,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
         "showHeader": true
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"speed\" and\n    (r._field == \"download_kbps\" or r._field == \"upload_kbps\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  // Compute averages per orb & field\n  |> group(columns: [\"orb_name\", \"_field\"])\n  |> mean()\n\n  // Make fields into columns\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  // Optional: cleaner column names\n  |> rename(columns: {\n      download_kbps: \"avg_download_kbps\",\n      upload_kbps: \"avg_upload_kbps\",\n    })\n  // Keep only what you want in the table\n  |> keep(columns: [\"orb_name\", \"avg_download_kbps\", \"avg_upload_kbps\"])\n  |> sort(columns: [\"orb_name\"])\n  |> group(columns: []) // collapse to a single table/frame",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.orb_name,\n  AVG(s.download_kbps) AS avg_download_kbps,\n  AVG(s.upload_kbps) AS avg_upload_kbps\nFROM speed AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "Average Speeds During Period",
@@ -891,7 +1165,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -903,6 +1177,9 @@
             "cellOptions": {
               "type": "auto"
             },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -911,15 +1188,14 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -957,14 +1233,6 @@
       "id": 11,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
         "showHeader": true,
         "sortBy": [
           {
@@ -973,15 +1241,35 @@
           }
         ]
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "from(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"wifi_link\" and\n    (r._field == \"rssi_avg\" or r._field == \"snr_avg\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  // Compute averages per orb & field\n  |> group(columns: [\"orb_name\", \"network_name\", \"bssid\", \"_field\"])\n  |> mean()\n\n  // Make fields into columns\n  |> pivot(rowKey: [\"orb_name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  // Optional: cleaner column names\n  // Keep only what you want in the table\n  |> drop(columns: [\"_start\", \"_stop\"])\n  |> sort(columns: [\"orb_name\"])\n  |> group(columns: []) // collapse to a single table/frame\n",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.orb_name,\n  selector_last(network_name, s.time)['value'] as network_name,\n  selector_last(bssid, s.time)['value'] as bssid,\n  AVG(s.rssi_avg) AS rssi_avg,\n  AVG(s.snr_avg) as snr_avg\nFROM wifi_link AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "WiFi Metrics",
@@ -990,7 +1278,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P65EB462968463E7E"
+        "uid": "PE4C8E2B106E0679B"
       },
       "fieldConfig": {
         "defaults": {
@@ -1004,6 +1292,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1023,6 +1312,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -1038,12 +1328,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "dBm",
-          "unitScale": true
+          "unit": "dBm"
         },
         "overrides": []
       },
@@ -1054,6 +1343,7 @@
         "y": 30
       },
       "id": 12,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -1062,54 +1352,75 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "desc"
         }
       },
+      "pluginVersion": "12.3.3",
       "targets": [
         {
+          "dataset": "iox",
           "datasource": {
             "type": "influxdb",
-            "uid": "P65EB462968463E7E"
+            "uid": "PE4C8E2B106E0679B"
           },
-          "query": "option minWindow = 1m\nfrom(bucket: \"orb_metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) =>\n    r._measurement == \"wifi_link\" and\n    (r._field == \"rssi_avg\") and\n    r.orb_name =~ /^${orbs:regex}$/\n  )\n  |> group(columns: [\"orb_name\"])\n  |> aggregateWindow(\n      every: if int(v: v.windowPeriod) < int(v: minWindow)\n             then minWindow\n             else v.windowPeriod,\n      fn: mean, \n      createEmpty: false\n    )\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.rssi_avg) AS value\nFROM wifi_link AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
         }
       ],
       "title": "RSSI by Orb",
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "1m",
-  "schemaVersion": 39,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
         },
         "datasource": {
           "type": "influxdb",
-          "uid": "P65EB462968463E7E"
+          "uid": "PE4C8E2B106E0679B"
         },
-        "definition": "import \"influxdata/influxdb/v1\"\nv1.tagValues(\n    bucket: \"orb_metrics\",\n    tag: \"orb_name\",\n    predicate: (r) => true,\n    start: -1h\n)",
-        "hide": 0,
+        "definition": "select  distinct orb_name from scores where time > now() - interval '1 hour'",
         "includeAll": true,
         "multi": true,
         "name": "orbs",
         "options": [],
-        "query": "import \"influxdata/influxdb/v1\"\nv1.tagValues(\n    bucket: \"orb_metrics\",\n    tag: \"orb_name\",\n    predicate: (r) => true,\n    start: -1h\n)",
+        "query": {
+          "query": "select  distinct orb_name from scores where time > now() - interval '1 hour'",
+          "refId": "InfluxVariableQueryEditor-VariableQuery"
+        },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       }
@@ -1122,7 +1433,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Orb Metrics Overview",
-  "uid": "a60e56ea-cdaf-4e77-8119-4ee2edfc28b9",
-  "version": 41,
-  "weekStart": ""
+  "uid": "orb-metrics-overview",
+  "version": 17
 }
