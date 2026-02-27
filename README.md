@@ -51,10 +51,15 @@ If you want to upgrade your Orb Local Analytics stack and move to Influx DB v3, 
 ```
 # stop Orb Local Analytics
 docker compose down
+# cleanup the old components
+docker volume rm orb-local-analytics_influxdb-data
+docker container rm influxdb
+docker container rm telegraf
 # pull the latest version from Github
 git pull
 # rerun the configuration step to create the updated telegraf pointing at InfluxDB v3
 python3 configure.py
 # start Orb Local Analytics
+docker compose pull
 docker compose up -d
 ```
