@@ -14,7 +14,7 @@ This guide will enable you to self-host a TIG (Telegraf, InfluxDB, Grafana) anal
 
 ## Configuration
 
-1. Run `./configure.py` to generate configs (`telegraf.conf` and Orb Cloud config)
+1. Run `python3 configure.py` to generate configs (`telegraf.conf` and Orb Cloud config)
 2. Follow all instructions in the configure.py output to run your selected configuration
 
 ## Setup
@@ -53,5 +53,8 @@ If you want to upgrade your Orb Local Analytics stack and move to Influx DB v3, 
 docker compose down
 # pull the latest version from Github
 git pull
+# rerun the configuration step to create the updated telegraf pointing at InfluxDB v3
+python3 configure.py
+# start Orb Local Analytics
 docker compose up -d
 ```
