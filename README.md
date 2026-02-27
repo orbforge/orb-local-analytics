@@ -1,11 +1,10 @@
-# orb-local-analytics
+# Orb Local Analytics
 Tools and documentation for setting up local Orb analytics.
-
 
 This guide will enable you to self-host a TIG (Telegraf, InfluxDB, Grafana) analytics stack and configure Orbs to send data to that stack for analysis.
 
 > [!WARNING]
-> If you have an existing installation of this repository that is older than February 26, 2026, [See Deprecation Notice](#deprecation-of-the-old-influxdb-v2-based-local-analytics) for important information.
+> If you have an existing installation of this repository that is older than February 26, 2026, See the [Deprecation Notice](#deprecation-of-the-old-influxdb-v2-based-local-analytics) for important information.
 
 ## Pre-Reqs
 1. You will need an active [Orb Cloud](https://cloud.orb.net) account to configure your Orbs for local data analytics
