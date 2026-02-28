@@ -32,7 +32,7 @@ AVAILABLE_DATASETS: List[str] = [
 TEMPLATE_MAPPING: Dict[str, str] = {
     r"^scores_(.+)$": "input_scores",
     r"^responsiveness_(.+)$": "input_responsiveness",
-    r"^wifi_link(.+)$": "input_wifi_link",
+    r"^wifi_link_(.+)$": "input_wifi_link",
     r"^speed_results$": "input_speed",
     r"^web_responsiveness_results$": "input_web_responsiveness",
 }
