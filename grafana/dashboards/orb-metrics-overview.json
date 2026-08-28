@@ -704,12 +704,28 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "orb_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Orb"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "orb_score"
             },
             "properties": [
               {
                 "id": "custom.width",
                 "value": 85
+              },
+              {
+                "id": "displayName",
+                "value": "Orb Score"
               }
             ]
           },
@@ -722,6 +738,10 @@
               {
                 "id": "custom.width",
                 "value": 121
+              },
+              {
+                "id": "displayName",
+                "value": "Reliability"
               }
             ]
           },
@@ -734,6 +754,10 @@
               {
                 "id": "custom.width",
                 "value": 169
+              },
+              {
+                "id": "displayName",
+                "value": "Responsiveness"
               }
             ]
           },
@@ -746,6 +770,10 @@
               {
                 "id": "custom.width",
                 "value": 110
+              },
+              {
+                "id": "displayName",
+                "value": "Speed"
               }
             ]
           }
@@ -1094,12 +1122,28 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "orb_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Orb"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "avg_download_kbps"
             },
             "properties": [
               {
                 "id": "unit",
                 "value": "Kbits"
+              },
+              {
+                "id": "displayName",
+                "value": "Avg Download"
               }
             ]
           },
@@ -1112,6 +1156,10 @@
               {
                 "id": "unit",
                 "value": "Kbits"
+              },
+              {
+                "id": "displayName",
+                "value": "Avg Upload"
               }
             ]
           }
@@ -1338,7 +1386,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 9,
+        "w": 18,
         "x": 6,
         "y": 30
       },
@@ -1390,6 +1438,608 @@
       ],
       "title": "RSSI by Orb",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "PE4C8E2B106E0679B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 40
+      },
+      "id": 13,
+      "interval": "1m",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.cpu_avg_percent) AS value\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "Host CPU Usage by Orb",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "PE4C8E2B106E0679B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 40
+      },
+      "id": 14,
+      "interval": "1m",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.mem_used_avg_bytes) AS \"Bytes Used\"\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        },
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  (AVG(s.mem_used_avg_bytes) / NULLIF(AVG(s.total_mem_bytes), 0)) * 100 AS \"Percent Used\"\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "Host Memory Usage by Orb",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "PE4C8E2B106E0679B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 40
+      },
+      "id": 16,
+      "interval": "1m",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.disk_used_avg_bytes) AS \"Bytes Used\"\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        },
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  (AVG(s.disk_used_avg_bytes) / NULLIF(AVG(s.total_disk_bytes), 0)) * 100 AS \"Percent Used\"\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "Host Disk Usage by Orb",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "PE4C8E2B106E0679B"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "orb_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Orb"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "orb_cpu_avg_percent"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "displayName",
+                "value": "CPU %"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "orb_mem_avg_bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "displayName",
+                "value": "Memory"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "orb_disk_avg_bytes"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "displayName",
+                "value": "Disk"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 50
+      },
+      "id": 20,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "12.3.3",
+      "targets": [
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "PE4C8E2B106E0679B"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  s.orb_name,\n  AVG(s.orb_cpu_avg_percent) AS orb_cpu_avg_percent,\n  AVG(s.orb_mem_avg_bytes) AS orb_mem_avg_bytes,\n  AVG(s.orb_disk_avg_bytes) AS orb_disk_avg_bytes\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          }
+        }
+      ],
+      "title": "Orb Process Resource Usage",
+      "type": "table"
     }
   ],
   "preload": false,
@@ -1434,5 +2084,5 @@
   "timezone": "browser",
   "title": "Orb Metrics Overview",
   "uid": "orb-metrics-overview",
-  "version": 17
+  "version": 18
 }
