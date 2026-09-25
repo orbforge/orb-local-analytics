@@ -1532,7 +1532,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.cpu_avg_percent) AS value\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
+          "rawSql": "SELECT\n  date_bin($__interval, s.time) AS time,\n  s.orb_name,\n  AVG(s.cpu_avg_pct) AS value\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1,2\nORDER BY\n  1 ASC, 2 ASC",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1948,7 +1948,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "orb_cpu_avg_percent"
+              "options": "orb_cpu_avg_pct"
             },
             "properties": [
               {
@@ -2018,7 +2018,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  s.orb_name,\n  AVG(s.orb_cpu_avg_percent) AS orb_cpu_avg_percent,\n  AVG(s.orb_mem_avg_bytes) AS orb_mem_avg_bytes,\n  AVG(s.orb_disk_avg_bytes) AS orb_disk_avg_bytes\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
+          "rawSql": "SELECT\n  s.orb_name,\n  AVG(s.orb_cpu_avg_pct) AS orb_cpu_avg_pct,\n  AVG(s.orb_mem_avg_bytes) AS orb_mem_avg_bytes,\n  AVG(s.orb_disk_avg_bytes) AS orb_disk_avg_bytes\nFROM system_telemetry AS s\nWHERE $__timeFilter(s.time)\n  AND regexp_like(s.orb_name, '${orbs:regex}')\nGROUP BY\n  1\nORDER BY\n  1 ASC",
           "refId": "A",
           "sql": {
             "columns": [
