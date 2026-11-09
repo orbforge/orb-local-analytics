@@ -26,6 +26,7 @@ AVAILABLE_DATASETS: List[str] = [
     "wifi_link_1s",
     "speed_results",
     "web_responsiveness_results",
+    "system_telemetry_1s",
 ]
 
 # dataset name -> template file stem, interval extractor/constant
@@ -35,6 +36,7 @@ TEMPLATE_MAPPING: Dict[str, str] = {
     r"^wifi_link_(.+)$": "input_wifi_link",
     r"^speed_results$": "input_speed",
     r"^web_responsiveness_results$": "input_web_responsiveness",
+    r"^system_telemetry_(.+)$": "input_system_telemetry",
 }
 
 DEFAULT_INTERVAL_BY_TEMPLATE = {
