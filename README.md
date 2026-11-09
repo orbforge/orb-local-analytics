@@ -36,6 +36,20 @@ After any changes to `telegraf.conf`, you only need to restart telegraf for chan
 docker restart telegraf
 ```
 
+## InfluxDB fails with `Too many open files`
+
+If InfluxDB fails to initialize its write buffer with `Too many open files (os error 24)`, it has exhausted its process's open-file limit. The Compose configuration sets the InfluxDB soft and hard `nofile` limits to 65536 to provide headroom when loading snapshots.
+
+Apply the limits to an existing installation by recreating only the InfluxDB container:
+
+```sh
+docker compose up -d --no-deps --force-recreate influxdbv3
+docker compose exec influxdbv3 sh -c 'ulimit -Sn; ulimit -Hn'
+docker compose logs --tail=50 influxdbv3
+```
+
+Both limits should report `65536`. Confirm the startup error no longer appears. Recreating the container preserves the existing named data volume; a plain `docker compose restart` does not apply changed limits. Do not use the teardown command below for this repair, as `down -v` deletes stored data.
+
 ## Tear down
 
 ```sh
