@@ -2,6 +2,11 @@ services:
   influxdbv3:
     image: influxdb:3-core
     container_name: influxdbv3
+    # Provide file-descriptor headroom while loading stored snapshots.
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
     ports:
       - "8181:8181"
     volumes:
